@@ -1,0 +1,15 @@
+{
+  "name": "shapez-calculator",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "whs dist --no-dotfiles",
+    "watch": "tsc watch"
+  },
+  "devDependencies": {
+    "ts-node": "^10.1.0",
+    "typescript": "^4.3.5",
+    "watch-http-server": "^0.7.6"
+  }
+}
