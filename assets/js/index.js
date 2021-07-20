@@ -1,7 +1,5 @@
 import { fromShortKey, ShortKeyConversionError } from "./fromShortKey.js";
-import { MixColors } from "./operations/MixColors.js";
 import { renderShape } from "./renderShape.js";
-import { Color } from "./util.js";
 const textInput = document.getElementById("code");
 const errorMessage = document.getElementById("error");
 const canvas = document.getElementById("result");
@@ -23,4 +21,3 @@ const updateResult = () => {
 };
 updateResult();
 textInput.onchange = updateResult;
-console.log(MixColors([Color.red, Color.cyan]));
