@@ -127,3 +127,17 @@ export function getGameObjectType(gameObject) {
         return 'shape';
     return null;
 }
+export function shapeDescriptorToShortKey(shape) {
+    let key = "";
+    for (const layer of shape) {
+        for (const quad of layer) {
+            if (quad === null)
+                key += '--';
+            else
+                key += SubShapeShortCode[quad.subShape] + ColorShortCode[quad.color];
+        }
+        key += ':';
+    }
+    key = key.substr(0, key.length - 1);
+    return key;
+}

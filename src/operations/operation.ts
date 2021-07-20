@@ -11,22 +11,48 @@ export interface OperationDescriptor<I extends OperationIngredient[], R extends 
   operate(ingredients: I): R
 }
 
+export interface OperationSuccess<I extends OperationIngredient[], R extends GameObject> {
+  name: string;
+  ingredients: I;
+  isError: false;
+  result: R;
+}
+
+export interface OperationError<I extends OperationIngredient[]> {
+  name: string;
+  ingredients: I;
+  isError: true;
+  error: string;
+}
+
+export type OperationResult<I extends OperationIngredient[], R extends GameObject> = OperationSuccess<I, R> | OperationError<I>
+
 export class OperationIngredientTypeMismatchError extends Error { }
 export class OperationInvalidIngredientError extends Error { }
 
 export function createOperation<I extends OperationIngredient[], R extends GameObject = Shape>(config: OperationDescriptor<I, R>) {
-  const op = function (ingredients: I) {
+  const op = function (ingredients: I): OperationResult<I, R> {
     // validate ingredients
     validateIngredientTypes<I>(ingredients, config.ingredients);
     try {
-      var result = config.operate(ingredients)
+      let result = config.operate(ingredients);
+      return {
+        name: config.name,
+        ingredients,
+        isError: false,
+        result
+      };
     } catch (e) {
       if (e instanceof OperationInvalidIngredientError) {
-        e.message = config.name + ": " + e.message;
-      }
-      throw e;
+        return {
+          name: config.name,
+          ingredients,
+          isError: true,
+          error: e.message
+        }
+      } else throw e;
     }
-    return result;
+
   }
   return op;
 }
@@ -38,7 +64,7 @@ function validateIngredientTypes<I extends OperationIngredient[]>(ingredients: I
     const ingredientType = types[i];
     if (ingredientType instanceof Array) {
       if (isShape(ingredient)) throw new OperationIngredientTypeMismatchError(`Expected game object array, got shape in ingredient ${i + 1}`)
-      if (!(ingredient instanceof Array)) throw new OperationIngredientTypeMismatchError(`Expected array, got ${getGameObjectType(ingredient)} in ingredient ${i + 1}`)
+      if (!(ingredient instanceof Array)) throw new OperationIngredientTypeMismatchError(`Expected array, got '${ingredient}' in ingredient ${i + 1}`)
       if (ingredient.length !== ingredientType.length) throw new OperationIngredientTypeMismatchError(`Ingredient array length (${ingredients.length}) in ingredient ${i + 1} not equal to expected length (${types.length})`);
       try {
         validateIngredientTypes(ingredient, ingredientType)
@@ -48,6 +74,6 @@ function validateIngredientTypes<I extends OperationIngredient[]>(ingredients: I
         }
         throw e;
       }
-    } else if (getGameObjectType(ingredient) !== ingredientType) throw new OperationIngredientTypeMismatchError(`Expected ${ingredientType}, got ${getGameObjectType(ingredient)} in ingredient ${i + 1}`)
+    } else if (getGameObjectType(ingredient) !== ingredientType) throw new OperationIngredientTypeMismatchError(`Expected ${ingredientType}, got '${ingredient}' in ingredient ${i + 1}`)
   })
 }

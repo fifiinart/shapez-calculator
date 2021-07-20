@@ -4,13 +4,13 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "dev": "whs dist --no-dotfiles",
-    "watch": "tsc watch",
+    "dev": "live-server dist --no-dotfiles",
+    "watch": "tsc --watch",
     "push": "git push && git subtree push --prefix dist origin gh-pages"
   },
   "devDependencies": {
+    "live-server": "^1.2.1",
     "ts-node": "^10.1.0",
-    "typescript": "^4.3.5",
-    "watch-http-server": "^0.7.6"
+    "typescript": "^4.3.5"
   }
 }

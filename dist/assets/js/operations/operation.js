@@ -8,15 +8,26 @@ export function createOperation(config) {
         // validate ingredients
         validateIngredientTypes(ingredients, config.ingredients);
         try {
-            var result = config.operate(ingredients);
+            let result = config.operate(ingredients);
+            return {
+                name: config.name,
+                ingredients,
+                isError: false,
+                result
+            };
         }
         catch (e) {
             if (e instanceof OperationInvalidIngredientError) {
-                e.message = config.name + ": " + e.message;
+                return {
+                    name: config.name,
+                    ingredients,
+                    isError: true,
+                    error: e.message
+                };
             }
-            throw e;
+            else
+                throw e;
         }
-        return result;
     };
     return op;
 }
@@ -29,7 +40,7 @@ function validateIngredientTypes(ingredients, types) {
             if (isShape(ingredient))
                 throw new OperationIngredientTypeMismatchError(`Expected game object array, got shape in ingredient ${i + 1}`);
             if (!(ingredient instanceof Array))
-                throw new OperationIngredientTypeMismatchError(`Expected array, got ${getGameObjectType(ingredient)} in ingredient ${i + 1}`);
+                throw new OperationIngredientTypeMismatchError(`Expected array, got '${ingredient}' in ingredient ${i + 1}`);
             if (ingredient.length !== ingredientType.length)
                 throw new OperationIngredientTypeMismatchError(`Ingredient array length (${ingredients.length}) in ingredient ${i + 1} not equal to expected length (${types.length})`);
             try {
@@ -43,6 +54,6 @@ function validateIngredientTypes(ingredients, types) {
             }
         }
         else if (getGameObjectType(ingredient) !== ingredientType)
-            throw new OperationIngredientTypeMismatchError(`Expected ${ingredientType}, got ${getGameObjectType(ingredient)} in ingredient ${i + 1}`);
+            throw new OperationIngredientTypeMismatchError(`Expected ${ingredientType}, got '${ingredient}' in ingredient ${i + 1}`);
     });
 }
