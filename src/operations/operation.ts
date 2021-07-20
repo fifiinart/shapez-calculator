@@ -1,17 +1,17 @@
-import { GameObject, getGameObjectType, isColor, isShape, Shape, TypeFromGameObject } from "../util.js";
+import { GameObject, getGameObjectType, isShape, Shape, TypeFromGameObject } from "../util.js";
 
 type OperationIngredient = GameObject | GameObject[]
 type OperationIngredientType<T> = T extends GameObject ? TypeFromGameObject<T> : T extends any[] ? { [K in keyof T]: OperationIngredientType<T[K]> } : never
 type OperationIngredientTypeList<T> = T extends OperationIngredient[] ? { [K in keyof T]: OperationIngredientType<T[K]> } : never
 
-export interface OperationDescriptor<I extends OperationIngredient[], R extends GameObject> {
+export interface OperationDescriptor<I extends OperationIngredient[], R extends OperationIngredient> {
   name: string;
   ingredients: OperationIngredientTypeList<I>;
   result: TypeFromGameObject<R>;
   operate(ingredients: I): R
 }
 
-export interface OperationSuccess<I extends OperationIngredient[], R extends GameObject> {
+export interface OperationSuccess<I extends OperationIngredient[], R extends OperationIngredient> {
   name: string;
   ingredients: I;
   isError: false;
@@ -25,12 +25,12 @@ export interface OperationError<I extends OperationIngredient[]> {
   error: string;
 }
 
-export type OperationResult<I extends OperationIngredient[], R extends GameObject> = OperationSuccess<I, R> | OperationError<I>
+export type OperationResult<I extends OperationIngredient[], R extends OperationIngredient> = OperationSuccess<I, R> | OperationError<I>
 
 export class OperationIngredientTypeMismatchError extends Error { }
 export class OperationInvalidIngredientError extends Error { }
 
-export function createOperation<I extends OperationIngredient[], R extends GameObject = Shape>(config: OperationDescriptor<I, R>) {
+export function createOperation<I extends OperationIngredient[], R extends OperationIngredient = Shape>(config: OperationDescriptor<I, R>) {
   const op = function (ingredients: I): OperationResult<I, R> {
     // validate ingredients
     validateIngredientTypes<I>(ingredients, config.ingredients);
