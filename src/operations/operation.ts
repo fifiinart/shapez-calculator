@@ -7,7 +7,7 @@ type OperationIngredientTypeList<T> = T extends OperationIngredient[] ? { [K in 
 export interface OperationDescriptor<I extends OperationIngredient[], R extends OperationIngredient> {
   name: string;
   ingredients: OperationIngredientTypeList<I>;
-  result: TypeFromGameObject<R>;
+  result: OperationIngredientType<R>;
   operate(ingredients: I): R
 }
 
@@ -30,7 +30,11 @@ export type OperationResult<I extends OperationIngredient[], R extends Operation
 export class OperationIngredientTypeMismatchError extends Error { }
 export class OperationInvalidIngredientError extends Error { }
 
-export function createOperation<I extends OperationIngredient[], R extends OperationIngredient = Shape>(config: OperationDescriptor<I, R>) {
+export interface Operation<I extends OperationIngredient[], R extends OperationIngredient> {
+  (ingredients: I): OperationResult<I, R>;
+}
+
+export function createOperation<I extends OperationIngredient[], R extends OperationIngredient = Shape>(config: OperationDescriptor<I, R>): Operation<I, R> {
   const op = function (ingredients: I): OperationResult<I, R> {
     // validate ingredients
     validateIngredientTypes<I>(ingredients, config.ingredients);

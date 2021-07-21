@@ -88,4 +88,5 @@ export declare function isLayer(layer: unknown): layer is Layer;
 export declare function isShape(shape: unknown): shape is Shape;
 export declare function getGameObjectType(gameObject: unknown): GameObjectType | null;
 export declare function shapeDescriptorToShortKey(shape: Shape): string;
+export declare function cloneShape(shape: Shape): Shape;
 export {};

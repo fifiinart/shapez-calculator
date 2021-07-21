@@ -101,16 +101,16 @@ export function isColor(color) {
     return typeof color === "string" && !!Color[color];
 }
 export function isLayer(layer) {
-    if (!(layer instanceof Array && layer.length !== 4))
+    if (!(layer instanceof Array && layer.length === 4))
         return false;
     return layer.every(quad => {
         if (quad === null)
             return true;
         if (!(quad instanceof Object))
             return false;
-        if (!("subshape" in quad && "color" in quad))
+        if (!("subShape" in quad && "color" in quad))
             return false;
-        return isSubShape(quad.shape) && isColor(quad.color);
+        return isSubShape(quad.subShape) && isColor(quad.color);
     });
 }
 export function isShape(shape) {
@@ -140,4 +140,17 @@ export function shapeDescriptorToShortKey(shape) {
     }
     key = key.substr(0, key.length - 1);
     return key;
+}
+export function cloneShape(shape) {
+    return shape.map(layer => {
+        const mapped = layer.map(quad => {
+            if (quad === null)
+                return null;
+            else
+                return Object.assign({}, quad);
+        });
+        if (mapped.length !== 4)
+            throw new Error("Unexpected error in cloneShape: layer does not have 4 quads");
+        return mapped;
+    });
 }
