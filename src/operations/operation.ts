@@ -1,4 +1,5 @@
-import { GameObject, getGameObjectType, isShape, Shape, TypeFromGameObject } from "../util.js";
+import { Shape } from "../Shape.js";
+import { GameObject, getGameObjectType, isShape, TypeFromGameObject } from "../util.js";
 
 type OperationIngredient = GameObject | GameObject[]
 type OperationIngredientType<T> = T extends GameObject ? TypeFromGameObject<T> : T extends any[] ? { [K in keyof T]: OperationIngredientType<T[K]> } : never
@@ -67,7 +68,6 @@ function validateIngredientTypes<I extends OperationIngredient[]>(ingredients: I
   ingredients.forEach((ingredient, i) => {
     const ingredientType = types[i];
     if (ingredientType instanceof Array) {
-      if (isShape(ingredient)) throw new OperationIngredientTypeMismatchError(`Expected game object array, got shape in ingredient ${i + 1}`)
       if (!(ingredient instanceof Array)) throw new OperationIngredientTypeMismatchError(`Expected array, got '${ingredient}' in ingredient ${i + 1}`)
       if (ingredient.length !== ingredientType.length) throw new OperationIngredientTypeMismatchError(`Ingredient array length (${ingredients.length}) in ingredient ${i + 1} not equal to expected length (${types.length})`);
       try {

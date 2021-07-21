@@ -1,5 +1,6 @@
-import { beginCircle, arrayQuadrantIndexToOffset, radians, ColorHexCodes, SubShape } from "./util.js";
-import { fromShortKey } from './fromShortKey.js';
+import { beginCircle, arrayQuadrantIndexToOffset, radians } from "./util.js";
+import { ColorHexCodes } from "./Color.js";
+import { SubShape } from "./Shape.js";
 const renderShapeDefaults = {
     backgroundColor: "#fff",
     w: 512,
@@ -7,13 +8,8 @@ const renderShapeDefaults = {
     shadowColor: "rgba(40, 50, 65, 0.1)",
     outlineColor: "#555",
 };
-export function createShapeRendering(key, options = {}) {
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    renderShape.call(ctx, fromShortKey(key), options);
-    return canvas;
-}
-export function renderShape(layers, options = {}) {
+export function renderShape(shape, options = {}) {
+    const layers = shape.descriptor;
     const opts = Object.assign(renderShapeDefaults, options);
     this.save();
     const { w, h, shadowColor } = opts;

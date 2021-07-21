@@ -1,9 +1,10 @@
-import { cloneShape, Color, Shape } from "../util.js";
+import { Color } from "../Color.js";
+import { Shape } from "../Shape.js";
 import { createOperation } from "./operation.js";
 
 // copied from shapez.io::js/game/shape_definition::586
 function cloneAndPaintWith(shape: Shape, color: Color) {
-  const cloned = cloneShape(shape)
+  const cloned = shape.clone().descriptor
 
   for (let layerIndex = 0; layerIndex < cloned.length; ++layerIndex) {
     const quadrants = cloned[layerIndex];
@@ -15,12 +16,12 @@ function cloneAndPaintWith(shape: Shape, color: Color) {
     }
   }
 
-  return cloned;
+  return new Shape(cloned);
 }
 
 // copied from shapez.io::js/game/shape_definition::601/
 function cloneAndPaintWith4Colors(shape: Shape, colors: [Color | null, Color | null, Color | null, Color | null]) {
-  const newLayers = cloneShape(shape)
+  const newLayers = shape.clone().descriptor
 
   for (let layerIndex = 0; layerIndex < newLayers.length; ++layerIndex) {
     const quadrants = newLayers[layerIndex];
@@ -31,7 +32,7 @@ function cloneAndPaintWith4Colors(shape: Shape, colors: [Color | null, Color | n
       }
     }
   }
-  return newLayers
+  return new Shape(newLayers)
 }
 
 export const Paint = createOperation<[Shape, Color], Shape>({

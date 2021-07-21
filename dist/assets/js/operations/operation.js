@@ -1,4 +1,4 @@
-import { getGameObjectType, isShape } from "../util.js";
+import { getGameObjectType } from "../util.js";
 export class OperationIngredientTypeMismatchError extends Error {
 }
 export class OperationInvalidIngredientError extends Error {
@@ -37,8 +37,6 @@ function validateIngredientTypes(ingredients, types) {
     ingredients.forEach((ingredient, i) => {
         const ingredientType = types[i];
         if (ingredientType instanceof Array) {
-            if (isShape(ingredient))
-                throw new OperationIngredientTypeMismatchError(`Expected game object array, got shape in ingredient ${i + 1}`);
             if (!(ingredient instanceof Array))
                 throw new OperationIngredientTypeMismatchError(`Expected array, got '${ingredient}' in ingredient ${i + 1}`);
             if (ingredient.length !== ingredientType.length)

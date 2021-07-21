@@ -6,9 +6,11 @@
   "scripts": {
     "dev": "live-server dist --no-dotfiles",
     "watch": "tsc --watch",
+    "test": "jest",
     "push": "git push && git subtree push --prefix dist origin gh-pages"
   },
   "devDependencies": {
+    "jest": "^27.0.6",
     "live-server": "^1.2.1",
     "ts-node": "^10.1.0",
     "typescript": "^4.3.5"
