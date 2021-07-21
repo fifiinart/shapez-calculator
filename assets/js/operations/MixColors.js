@@ -1,4 +1,4 @@
-import { Color } from "../util.js";
+import { Color } from "../Color.js";
 import { createOperation, OperationInvalidIngredientError } from "./operation.js";
 const ColorMixingRecipes = new Map([
     [[Color.red, Color.green], Color.yellow],

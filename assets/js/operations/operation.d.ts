@@ -1,4 +1,5 @@
-import { GameObject, Shape, TypeFromGameObject } from "../util.js";
+import { Shape } from "../Shape.js";
+import { GameObject, TypeFromGameObject } from "../util.js";
 declare type OperationIngredient = GameObject | GameObject[];
 declare type OperationIngredientType<T> = T extends GameObject ? TypeFromGameObject<T> : T extends any[] ? {
     [K in keyof T]: OperationIngredientType<T[K]>;

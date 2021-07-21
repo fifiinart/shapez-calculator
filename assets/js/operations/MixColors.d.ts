@@ -1,2 +1,2 @@
-import { Color } from "../util.js";
+import { Color } from "../Color.js";
 export declare const MixColors: import("./operation.js").Operation<[Color, Color], Color>;

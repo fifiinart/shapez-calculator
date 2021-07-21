@@ -2,81 +2,14 @@
  * Lots of code here is copied 1:1 from actual game files
  *
  */
-export const maxLayer = 4;
-/** @enum {string} */
-export var SubShape;
-(function (SubShape) {
-    SubShape["rect"] = "rect";
-    SubShape["circle"] = "circle";
-    SubShape["star"] = "star";
-    SubShape["windmill"] = "windmill";
-})(SubShape || (SubShape = {}));
-;
-/** @enum {string} */
-export const SubShapeShortCode = {
-    [SubShape.rect]: "R",
-    [SubShape.circle]: "C",
-    [SubShape.star]: "S",
-    [SubShape.windmill]: "W",
-};
-/** @enum {SubShape} */
-export const ShortCodeToSubShape = {};
-for (const key in SubShapeShortCode) {
-    // @ts-ignore
-    ShortCodeToSubShape[SubShapeShortCode[key]] = key;
-}
+import { ShortCodeToColor, Color, ColorShortCode } from "./Color";
+import { Shape, ShortCodeToSubShape, SubShape, SubShapeShortCode } from "./Shape";
 export const arrayQuadrantIndexToOffset = [
     { x: 1, y: -1 },
     { x: 1, y: 1 },
     { x: -1, y: 1 },
     { x: -1, y: -1 }, // tl
 ];
-// From colors.js
-/** @enum {string} */
-export var Color;
-(function (Color) {
-    Color["red"] = "red";
-    Color["green"] = "green";
-    Color["blue"] = "blue";
-    Color["yellow"] = "yellow";
-    Color["purple"] = "purple";
-    Color["cyan"] = "cyan";
-    Color["white"] = "white";
-    Color["uncolored"] = "uncolored";
-})(Color || (Color = {}));
-;
-/** @enum {string} */
-export const ColorShortCode = {
-    [Color.red]: "r",
-    [Color.green]: "g",
-    [Color.blue]: "b",
-    [Color.yellow]: "y",
-    [Color.purple]: "p",
-    [Color.cyan]: "c",
-    [Color.white]: "w",
-    [Color.uncolored]: "u",
-};
-/** @enum {string} */
-export const ColorHexCodes = {
-    [Color.red]: "#ff666a",
-    [Color.green]: "#78ff66",
-    [Color.blue]: "#66a7ff",
-    // red + green
-    [Color.yellow]: "#fcf52a",
-    // red + blue
-    [Color.purple]: "#dd66ff",
-    // blue + green
-    [Color.cyan]: "#87fff5",
-    // blue + green + red
-    [Color.white]: "#ffffff",
-    [Color.uncolored]: "#aaaaaa",
-};
-/** @enum {Color} */
-export const ShortCodeToColor = {};
-for (const key in ColorShortCode) {
-    // @ts-ignore
-    ShortCodeToColor[ColorShortCode[key]] = key;
-}
 export function beginCircle(x, y, r) {
     if (r < 0.05) {
         this.beginPath();
@@ -114,9 +47,7 @@ export function isLayer(layer) {
     });
 }
 export function isShape(shape) {
-    if (!(shape instanceof Array && shape.length > 0 && shape.length <= 4))
-        return false;
-    return shape.every(isLayer);
+    return shape instanceof Shape;
 }
 export function getGameObjectType(gameObject) {
     if (typeof gameObject === 'boolean')
@@ -140,17 +71,4 @@ export function shapeDescriptorToShortKey(shape) {
     }
     key = key.substr(0, key.length - 1);
     return key;
-}
-export function cloneShape(shape) {
-    return shape.map(layer => {
-        const mapped = layer.map(quad => {
-            if (quad === null)
-                return null;
-            else
-                return Object.assign({}, quad);
-        });
-        if (mapped.length !== 4)
-            throw new Error("Unexpected error in cloneShape: layer does not have 4 quads");
-        return mapped;
-    });
 }
