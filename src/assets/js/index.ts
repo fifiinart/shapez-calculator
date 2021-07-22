@@ -1,7 +1,7 @@
-import { renderShape } from "./renderShape.js";
-import { Paint } from './operations/Paint.js'
-import { getGameObjectType, shapeDescriptorToShortKey } from "./util.js";
-import { Shape, ShortKeyConversionError } from "./Shape.js";
+import { renderShape } from "./renderShape";
+import { Paint } from './operations/Paint'
+import { getGameObjectType, shapeDescriptorToShortKey } from "./util";
+import { Shape, ShortKeyConversionError } from "./Shape";
 const textInput = document.getElementById("code") as HTMLInputElement;
 
 const errorMessage = document.getElementById("error") as HTMLParagraphElement;

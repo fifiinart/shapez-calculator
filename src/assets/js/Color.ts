@@ -1,4 +1,4 @@
-// From colors.js
+// From colors
 /** @enum {string} */
 export enum Color {
   red = "red",
@@ -62,3 +62,6 @@ for (const key in ColorShortCode) {
   // @ts-ignore
   ShortCodeToColor[ColorShortCode[key]] = key;
 }
+
+
+export const possibleColorsString = Object.keys(ShortCodeToColor).join("");

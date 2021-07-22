@@ -1,6 +1,6 @@
-import { beginCircle, arrayQuadrantIndexToOffset, radians } from "./util.js";
-import { ColorHexCodes } from "./Color.js";
-import { Shape, SubShape } from "./Shape.js";
+import { beginCircle, arrayQuadrantIndexToOffset, radians } from "./util";
+import { ColorHexCodes } from "./Color";
+import { Shape, SubShape } from "./Shape";
 
 interface RenderShapeOptions {
   backgroundColor: string;

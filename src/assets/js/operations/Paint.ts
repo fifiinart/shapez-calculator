@@ -1,6 +1,6 @@
-import { Color } from "../Color.js";
-import { Shape } from "../Shape.js";
-import { createOperation } from "./operation.js";
+import { Color } from "../Color";
+import { Shape } from "../Shape";
+import { createOperation } from "./operation";
 
 // copied from shapez.io::js/game/shape_definition::586
 function cloneAndPaintWith(shape: Shape, color: Color) {

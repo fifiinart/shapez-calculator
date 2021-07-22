@@ -1,5 +1,5 @@
-import { Color } from "../Color.js";
-import { createOperation, OperationInvalidIngredientError } from "./operation.js";
+import { Color } from "../Color";
+import { createOperation, OperationInvalidIngredientError } from "./operation";
 
 const ColorMixingRecipes = new Map<[Color, Color], Color>(
   [

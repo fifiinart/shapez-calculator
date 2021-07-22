@@ -1,5 +1,7 @@
-import { Color, ColorShortCodeUnion, ShortCodeToColor } from "./Color";
-import { layerRegex } from "./util";
+import { Color, ColorShortCodeUnion, possibleColorsString, ShortCodeToColor } from "./Color";
+
+
+
 
 export type Quad = null | { subShape: SubShape; color: Color }
 export type Layer = [Quad, Quad, Quad, Quad];
@@ -35,7 +37,10 @@ for (const key in SubShapeShortCode) {
   // @ts-ignore
   ShortCodeToSubShape[SubShapeShortCode[key]] = key;
 }
-
+export const possibleShapesString = Object.keys(ShortCodeToSubShape).join("");
+export const layerRegex = new RegExp(
+  "([" + possibleShapesString + "][" + possibleColorsString + "]|-{2}){4}"
+);
 
 export type SubShapeShortCodeUnion = keyof ShortCodeToSubShape
 

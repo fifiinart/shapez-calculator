@@ -3,8 +3,8 @@
  *
  */
 
-import { ShortCodeToColor, Color, ColorShortCode } from "./Color";
-import { Layer, Quad, Shape, ShortCodeToSubShape, SubShape, SubShapeShortCode } from "./Shape";
+import { Color, ColorShortCode } from "./Color";
+import { Layer, Shape, ShapeDescriptor, SubShape, SubShapeShortCode } from "./Shape";
 
 
 
@@ -29,13 +29,8 @@ export function beginCircle(this: CanvasRenderingContext2D, x: number, y: number
   }
   this.beginPath();
   this.arc(x, y, r, 0, 2.0 * Math.PI);
-};
+}
 
-const possibleShapesString = Object.keys(ShortCodeToSubShape).join("");
-const possibleColorsString = Object.keys(ShortCodeToColor).join("");
-export const layerRegex = new RegExp(
-  "([" + possibleShapesString + "][" + possibleColorsString + "]|-{2}){4}"
-);
 
 /////////////////////////////////////////////////////
 
@@ -80,6 +75,11 @@ export function isLayer(layer: unknown): layer is Layer {
 
 export function isShape(shape: unknown): shape is Shape {
   return shape instanceof Shape;
+}
+
+export function isShapeDescriptor(descriptor: unknown): descriptor is ShapeDescriptor {
+  if (!(descriptor instanceof Array && descriptor.length > 0 && descriptor.length <= 4)) return false;
+  return descriptor.every(isLayer);
 }
 
 export function getGameObjectType(gameObject: unknown): GameObjectType | null {

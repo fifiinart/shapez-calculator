@@ -4,14 +4,22 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "dev": "live-server dist --no-dotfiles",
+    "dev": "parcel serve ./src/index.html",
+    "build": "parcel build ./src/index.html",
     "watch": "tsc --watch",
-    "test": "jest",
+    "test": "jest --silent=false",
+    "test:dev": "node --inspect-brk node_modules/.bin/jest --runInBand",
     "push": "git push && git subtree push --prefix dist origin gh-pages"
   },
   "devDependencies": {
+    "@babel/core": "^7.14.8",
+    "@babel/plugin-transform-typescript": "^7.14.6",
+    "@babel/preset-env": "^7.14.8",
+    "@babel/preset-typescript": "^7.14.5",
+    "@types/jest": "^26.0.24",
+    "babel-jest": "^27.0.6",
     "jest": "^27.0.6",
-    "live-server": "^1.2.1",
+    "parcel": "^2.0.0-beta.2",
     "ts-node": "^10.1.0",
     "typescript": "^4.3.5"
   }
