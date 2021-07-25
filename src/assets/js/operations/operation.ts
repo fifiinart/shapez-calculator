@@ -1,9 +1,9 @@
 import { Shape } from "../Shape";
 import { GameObject, getGameObjectType, isShape, TypeFromGameObject } from "../util";
 
-type OperationIngredient = GameObject | GameObject[]
-type OperationIngredientType<T> = T extends GameObject ? TypeFromGameObject<T> : T extends any[] ? { [K in keyof T]: OperationIngredientType<T[K]> } : never
-type OperationIngredientTypeList<T> = T extends OperationIngredient[] ? { [K in keyof T]: OperationIngredientType<T[K]> } : never
+export type OperationIngredient = GameObject | GameObject[]
+export type OperationIngredientType<T> = T extends GameObject ? TypeFromGameObject<T> : T extends any[] ? { [K in keyof T]: OperationIngredientType<T[K]> } : never
+export type OperationIngredientTypeList<T> = T extends OperationIngredient[] ? { [K in keyof T]: OperationIngredientType<T[K]> } : never
 
 export interface OperationDescriptor<I extends OperationIngredient[], R extends OperationIngredient> {
   name: string;
@@ -68,16 +68,16 @@ function validateIngredientTypes<I extends OperationIngredient[]>(ingredients: I
   ingredients.forEach((ingredient, i) => {
     const ingredientType = types[i];
     if (ingredientType instanceof Array) {
-      if (!(ingredient instanceof Array)) throw new OperationIngredientTypeMismatchError(`Expected array, got '${ingredient}' in ingredient ${i + 1}`)
-      if (ingredient.length !== ingredientType.length) throw new OperationIngredientTypeMismatchError(`Ingredient array length (${ingredients.length}) in ingredient ${i + 1} not equal to expected length (${types.length})`);
+      if (!(ingredient instanceof Array)) throw new OperationIngredientTypeMismatchError(`Expected array, got '${ingredient}' in ingredient ${i}`)
+      if (ingredient.length !== ingredientType.length) throw new OperationIngredientTypeMismatchError(`Ingredient array length (${ingredient.length}) in ingredient ${i} not equal to expected length (${ingredientType.length})`);
       try {
         validateIngredientTypes(ingredient, ingredientType)
       } catch (e) {
         if (e instanceof OperationIngredientTypeMismatchError) {
-          e.message = e.message.replace(/ingredient/g, "index") + ` in index ${i + 1}`
+          e.message = e.message.replace(/ingredient/g, "index") + ` in ingredient ${i}`
         }
         throw e;
       }
-    } else if (getGameObjectType(ingredient) !== ingredientType) throw new OperationIngredientTypeMismatchError(`Expected ${ingredientType}, got '${ingredient}' in ingredient ${i + 1}`)
+    } else if (getGameObjectType(ingredient) !== ingredientType) throw new OperationIngredientTypeMismatchError(`Expected ${ingredientType}, got '${ingredient}' in ingredient ${i}`)
   })
 }

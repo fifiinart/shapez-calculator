@@ -1,3 +1,4 @@
+import 'jest-extended';
 import { Color, ColorShortCode, ShortCodeToColor } from './Color'
 
 it('Maps color strings to properties on the Color enum', () => {
@@ -13,12 +14,12 @@ it('Maps color strings to properties on the Color enum', () => {
 
 it('Maps to actual color strings', () => {
   for (const color of Object.values(Color)) {
-    expect(typeof color).toBe('string')
+    expect(color).toBeString()
   }
 })
 
 it('Makes ColorShortCode and ShortCodeToColor reversible', () => {
   for (const color of Object.values(Color)) {
-    expect(ShortCodeToColor[ColorShortCode[color]]).toBe(color)
+    expect(ShortCodeToColor).toContainEntry([ColorShortCode[color], color])
   }
 })

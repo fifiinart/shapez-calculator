@@ -3,44 +3,8 @@
  *
  */
 
-import { Color, ColorShortCode } from "./Color";
-import { Layer, Shape, ShapeDescriptor, SubShape, SubShapeShortCode } from "./Shape";
-
-
-
-interface Vector {
-  x: number, y: number
-}
-
-export const arrayQuadrantIndexToOffset: Vector[] = [
-  { x: 1, y: -1 }, // tr
-  { x: 1, y: 1 }, // br
-  { x: -1, y: 1 }, // bl
-  { x: -1, y: -1 }, // tl
-];
-
-
-
-export function beginCircle(this: CanvasRenderingContext2D, x: number, y: number, r: number): void {
-  if (r < 0.05) {
-    this.beginPath();
-    this.rect(x, y, 1, 1);
-    return;
-  }
-  this.beginPath();
-  this.arc(x, y, r, 0, 2.0 * Math.PI);
-}
-
-
-/////////////////////////////////////////////////////
-
-export function radians(degrees: number) {
-  return (degrees * Math.PI) / 180.0;
-}
-
-
-
-
+import { Color } from "./Color";
+import { Layer, Shape, ShapeDescriptor, ShortKeyConversionError, SubShape } from "./Shape";
 export interface GameObjectTypeDictionary {
   shape: Shape;
   color: Color;
@@ -60,11 +24,12 @@ export function isSubShape(subshape: unknown): subshape is SubShape {
 }
 
 export function isColor(color: unknown): color is Color {
-  return typeof color === "string" && !!Color[color as keyof typeof Color]
+  return typeof color === "string" && color in Color
 }
 
 export function isLayer(layer: unknown): layer is Layer {
   if (!(layer instanceof Array && layer.length === 4)) return false;
+  if (layer.every(q => q === null)) return false;
   return layer.every(quad => {
     if (quad === null) return true;
     if (!(quad instanceof Object)) return false;
@@ -75,6 +40,17 @@ export function isLayer(layer: unknown): layer is Layer {
 
 export function isShape(shape: unknown): shape is Shape {
   return shape instanceof Shape;
+}
+
+export function isShapeKey(key: unknown) {
+  if (typeof key !== "string") return false;
+  try {
+    Shape.fromShortKey(key);
+    return true;
+  } catch (e) {
+    if (e instanceof ShortKeyConversionError) return false;
+    else throw e;
+  }
 }
 
 export function isShapeDescriptor(descriptor: unknown): descriptor is ShapeDescriptor {
@@ -89,15 +65,3 @@ export function getGameObjectType(gameObject: unknown): GameObjectType | null {
   return null;
 }
 
-export function shapeDescriptorToShortKey(shape: Shape): string {
-  let key = ""
-  for (const layer of shape) {
-    for (const quad of layer) {
-      if (quad === null) key += '--';
-      else key += SubShapeShortCode[quad.subShape] + ColorShortCode[quad.color];
-    }
-    key += ':';
-  }
-  key = key.substr(0, key.length - 1);
-  return key;
-}

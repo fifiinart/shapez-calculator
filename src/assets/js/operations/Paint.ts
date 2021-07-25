@@ -1,9 +1,10 @@
 import { Color } from "../Color";
 import { Shape } from "../Shape";
-import { createOperation } from "./operation";
+import { createOperation, OperationInvalidIngredientError } from "./operation";
 
-// copied from shapez.io::js/game/shape_definition::586
+// adapted from shapez.io::js/game/shape_definition::586
 function cloneAndPaintWith(shape: Shape, color: Color) {
+  if (color === Color.uncolored) throw new OperationInvalidIngredientError("A shape cannot be painted uncolored")
   const cloned = shape.clone().descriptor
 
   for (let layerIndex = 0; layerIndex < cloned.length; ++layerIndex) {
@@ -19,16 +20,18 @@ function cloneAndPaintWith(shape: Shape, color: Color) {
   return new Shape(cloned);
 }
 
-// copied from shapez.io::js/game/shape_definition::601/
+// adapted from shapez.io::js/game/shape_definition::601/
 function cloneAndPaintWith4Colors(shape: Shape, colors: [Color | null, Color | null, Color | null, Color | null]) {
+  if (colors.some(c => c === Color.uncolored)) throw new OperationInvalidIngredientError("A shape cannot be painted uncolored")
   const newLayers = shape.clone().descriptor
 
   for (let layerIndex = 0; layerIndex < newLayers.length; ++layerIndex) {
     const quadrants = newLayers[layerIndex];
     for (let quadrantIndex = 0; quadrantIndex < 4; ++quadrantIndex) {
       const item = quadrants[quadrantIndex];
-      if (item) {
-        item.color = colors[quadrantIndex] || item.color;
+      const color = colors[quadrantIndex]
+      if (item && color) {
+        item.color = color;
       }
     }
   }
@@ -46,7 +49,12 @@ export const QuadPaint = createOperation<[Shape, [Color, Color, Color, Color], [
   name: 'QuadPaint',
   ingredients: ['shape', ['color', 'color', 'color', 'color'], ['boolean', 'boolean', 'boolean', 'boolean']],
   result: 'shape',
-  operate: ([shape, colors, bools]) => cloneAndPaintWith4Colors(shape, colors.map((c, i) => bools[i]! ? c : null) as [Color | null, Color | null, Color | null, Color | null])
+  operate: ([shape, colors, bools]) => {
+    if (!(bools.some(b => !!b))) throw new OperationInvalidIngredientError("At least one wire must be activated")
+
+    const activatedColors = colors.map((v, i) => bools[i] ? v : null) as [Color | null, Color | null, Color | null, Color | null]
+    return cloneAndPaintWith4Colors(shape, activatedColors)
+  }
 })
 
 export const DoublePaint = createOperation<[[Shape, Shape], Color], [Shape, Shape]>({
