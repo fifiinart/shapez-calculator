@@ -430,24 +430,32 @@ function hmrAcceptRun(bundle, id) {
 
 },{}],"yv9yU":[function(require,module,exports) {
 "use strict";
-var _renderShape = require("./renderShape");
+var _renderShape = _interopRequireDefault(require("./renderShape"));
 var _Paint = require("./operations/Paint");
 var _util = require("./util");
 var _Shape = require("./Shape");
-const textInput = document.getElementById("code");
-const errorMessage = document.getElementById("error");
-const canvas = document.getElementById("result");
-const ctx = canvas.getContext("2d");
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : {
+    default: obj
+  };
+}
+const textInput = document.getElementById('code');
+const errorMessage = document.getElementById('error');
+const canvas = document.getElementById('result');
+const ctx = canvas.getContext('2d');
+if (ctx == null) throw new Error('No context found for canvas');
 const updateResult = () => {
   try {
-    _renderShape.renderShape.call(ctx, new _Shape.Shape(textInput.value));
-    errorMessage.textContent = "Shape generated";
-    errorMessage.classList.remove("hasError");
+    _renderShape.default.call(ctx, _Shape.Shape.fromShortKey(textInput.value));
+    errorMessage.textContent = 'Shape generated';
+    errorMessage.classList.remove('hasError');
   } catch (err) {
     if (err instanceof _Shape.ShortKeyConversionError) {
-      errorMessage.textContent = "Error: " + err.message;
-      errorMessage.classList.add("hasError");
-    } else if (err instanceof Error) throw err;
+      errorMessage.textContent = 'Error: ' + err.message;
+      errorMessage.classList.add('hasError');
+    } else if (err instanceof Error) {
+      throw err;
+    }
   }
 };
 updateResult();
@@ -455,7 +463,6 @@ textInput.onchange = updateResult;
 const globalDebugFns = {
   Paint: _Paint.Paint,
   Shape: _Shape.Shape,
-  shapeDescriptorToShortKey: _util.shapeDescriptorToShortKey,
   getGameObjectType: _util.getGameObjectType
 };
 Object.assign(window, globalDebugFns);
@@ -465,16 +472,44 @@ Object.assign(window, globalDebugFns);
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.renderShape = renderShape;
-var _util = require("./util");
+exports.default = renderShape;
 var _Color = require("./Color");
 var _Shape = require("./Shape");
+const arrayQuadrantIndexToOffset = [{
+  x: 1,
+  y: -1
+}, // tr
+{
+  x: 1,
+  y: 1
+}, // br
+{
+  x: -1,
+  y: 1
+}, // bl
+{
+  x: -1,
+  y: -1
+  // tl
+}];
+function beginCircle(x, y, r) {
+  if (r < 0.05) {
+    this.beginPath();
+    this.rect(x, y, 1, 1);
+    return;
+  }
+  this.beginPath();
+  this.arc(x, y, r, 0, 2.0 * Math.PI);
+}
+function radians(degrees) {
+  return degrees * Math.PI / 180.0;
+}
 const renderShapeDefaults = {
-  backgroundColor: "#fff",
+  backgroundColor: '#fff',
   w: 512,
   h: 512,
-  shadowColor: "rgba(40, 50, 65, 0.1)",
-  outlineColor: "#555"
+  shadowColor: 'rgba(40, 50, 65, 0.1)',
+  outlineColor: '#555'
 };
 function renderShape(shape, options = {}) {
   const layers = shape.descriptor;
@@ -492,7 +527,7 @@ function renderShape(shape, options = {}) {
   const quadrantHalfSize = quadrantSize / 2;
   if (shadowColor) {
     this.fillStyle = shadowColor;
-    _util.beginCircle.call(this, 0, 0, quadrantSize * 1.15);
+    beginCircle.call(this, 0, 0, quadrantSize * 1.15);
     this.fill();
   }
   for (let layerIndex = 0; layerIndex < layers.length; ++layerIndex) {
@@ -503,14 +538,14 @@ function renderShape(shape, options = {}) {
         continue;
       }
       const {subShape, color} = quadrants[quadrantIndex];
-      const quadrantPos = _util.arrayQuadrantIndexToOffset[quadrantIndex];
+      const quadrantPos = arrayQuadrantIndexToOffset[quadrantIndex];
       const centerQuadrantX = quadrantPos.x * quadrantHalfSize;
       const centerQuadrantY = quadrantPos.y * quadrantHalfSize;
-      const rotation = (0, _util.radians)(quadrantIndex * 90);
+      const rotation = radians(quadrantIndex * 90);
       this.translate(centerQuadrantX, centerQuadrantY);
       this.rotate(rotation);
       this.fillStyle = _Color.ColorHexCodes[color];
-      this.strokeStyle = opts.outlineColor || "rgba(0, 0, 0, 0)";
+      this.strokeStyle = opts.outlineColor || 'rgba(0, 0, 0, 0)';
       this.lineWidth = 1;
       const insetPadding = 0.0;
       switch (subShape) {
@@ -525,8 +560,8 @@ function renderShape(shape, options = {}) {
           {
             this.beginPath();
             const dims = quadrantSize * layerScale;
-            let originX = insetPadding - quadrantHalfSize;
-            let originY = -insetPadding + quadrantHalfSize - dims;
+            const originX = insetPadding - quadrantHalfSize;
+            const originY = -insetPadding + quadrantHalfSize - dims;
             const moveInwards = dims * 0.4;
             this.moveTo(originX, originY + moveInwards);
             this.lineTo(originX + dims, originY);
@@ -539,8 +574,8 @@ function renderShape(shape, options = {}) {
           {
             this.beginPath();
             const dims = quadrantSize * layerScale;
-            let originX = insetPadding - quadrantHalfSize;
-            let originY = -insetPadding + quadrantHalfSize - dims;
+            const originX = insetPadding - quadrantHalfSize;
+            const originY = -insetPadding + quadrantHalfSize - dims;
             const moveInwards = dims * 0.4;
             this.moveTo(originX, originY + moveInwards);
             this.lineTo(originX + dims, originY);
@@ -559,7 +594,7 @@ function renderShape(shape, options = {}) {
           }
         default:
           {
-            throw new Error("Unkown sub shape: " + subShape);
+            throw new Error('Unkown sub shape: ' + subShape);
           }
       }
       this.fill();
@@ -569,98 +604,6 @@ function renderShape(shape, options = {}) {
     }
   }
   this.restore();
-}
-
-},{"./util":"2cNuk","./Color":"4HDMP","./Shape":"3eVfh"}],"2cNuk":[function(require,module,exports) {
-"use strict";
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.beginCircle = beginCircle;
-exports.radians = radians;
-exports.isSubShape = isSubShape;
-exports.isColor = isColor;
-exports.isLayer = isLayer;
-exports.isShape = isShape;
-exports.isShapeDescriptor = isShapeDescriptor;
-exports.getGameObjectType = getGameObjectType;
-exports.shapeDescriptorToShortKey = shapeDescriptorToShortKey;
-exports.arrayQuadrantIndexToOffset = void 0;
-var _Color = require("./Color");
-var _Shape = require("./Shape");
-/*
-* Lots of code here is copied 1:1 from actual game files
-*
-*/
-const arrayQuadrantIndexToOffset = [{
-  x: 1,
-  y: -1
-}, // tr
-{
-  x: 1,
-  y: 1
-}, // br
-{
-  x: -1,
-  y: 1
-}, // bl
-{
-  x: -1,
-  y: -1
-  // tl
-}];
-exports.arrayQuadrantIndexToOffset = arrayQuadrantIndexToOffset;
-function beginCircle(x, y, r) {
-  if (r < 0.05) {
-    this.beginPath();
-    this.rect(x, y, 1, 1);
-    return;
-  }
-  this.beginPath();
-  this.arc(x, y, r, 0, 2.0 * Math.PI);
-}
-// ///////////////////////////////////////////////////
-function radians(degrees) {
-  return degrees * Math.PI / 180.0;
-}
-function isSubShape(subshape) {
-  return typeof subshape === "string" && !!_Shape.SubShape[subshape];
-}
-function isColor(color) {
-  return typeof color === "string" && !!_Color.Color[color];
-}
-function isLayer(layer) {
-  if (!(layer instanceof Array && layer.length === 4)) return false;
-  return layer.every(quad => {
-    if (quad === null) return true;
-    if (!(quad instanceof Object)) return false;
-    if (!(("subShape" in quad) && ("color" in quad))) return false;
-    return isSubShape(quad.subShape) && isColor(quad.color);
-  });
-}
-function isShape(shape) {
-  return shape instanceof _Shape.Shape;
-}
-function isShapeDescriptor(descriptor) {
-  if (!(descriptor instanceof Array && descriptor.length > 0 && descriptor.length <= 4)) return false;
-  return descriptor.every(isLayer);
-}
-function getGameObjectType(gameObject) {
-  if (typeof gameObject === 'boolean') return 'boolean';
-  if (isColor(gameObject)) return 'color';
-  if (isShape(gameObject)) return 'shape';
-  return null;
-}
-function shapeDescriptorToShortKey(shape) {
-  let key = "";
-  for (const layer of shape) {
-    for (const quad of layer) {
-      if (quad === null) key += '--'; else key += _Shape.SubShapeShortCode[quad.subShape] + _Color.ColorShortCode[quad.color];
-    }
-    key += ':';
-  }
-  key = key.substr(0, key.length - 1);
-  return key;
 }
 
 },{"./Color":"4HDMP","./Shape":"3eVfh"}],"4HDMP":[function(require,module,exports) {
@@ -728,10 +671,8 @@ exports.possibleColorsString = possibleColorsString;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Shape = exports.ShortKeyConversionError = exports.layerRegex = exports.possibleShapesString = exports.ShortCodeToSubShape = exports.SubShapeShortCode = exports.SubShape = exports.maxLayer = void 0;
+exports.Shape = exports.ShortKeyConversionError = exports.layerRegex = exports.possibleShapesString = exports.ShortCodeToSubShape = exports.SubShapeShortCode = exports.maxLayer = exports.SubShape = void 0;
 var _Color = require("./Color");
-const maxLayer = 4;
-exports.maxLayer = maxLayer;
 /** @enum {string}*/
 let SubShape;
 exports.SubShape = SubShape;
@@ -742,12 +683,14 @@ exports.SubShape = SubShape;
   SubShape["windmill"] = "windmill";
 })(SubShape || (exports.SubShape = SubShape = {}));
 ;
+const maxLayer = 4;
+exports.maxLayer = maxLayer;
 /** @enum {string}*/
 const SubShapeShortCode = {
-  [SubShape.rect]: "R",
-  [SubShape.circle]: "C",
-  [SubShape.star]: "S",
-  [SubShape.windmill]: "W"
+  [SubShape.rect]: 'R',
+  [SubShape.circle]: 'C',
+  [SubShape.star]: 'S',
+  [SubShape.windmill]: 'W'
 };
 exports.SubShapeShortCode = SubShapeShortCode;
 /** @enum {SubShape}*/
@@ -758,9 +701,9 @@ for (const key in SubShapeShortCode) {
   // @ts-ignore
   ShortCodeToSubShape[SubShapeShortCode[key]] = key;
 }
-const possibleShapesString = Object.keys(ShortCodeToSubShape).join("");
+const possibleShapesString = Object.keys(ShortCodeToSubShape).join('');
 exports.possibleShapesString = possibleShapesString;
-const layerRegex = new RegExp("([" + possibleShapesString + "][" + _Color.possibleColorsString + "]|-{2}){4}");
+const layerRegex = new RegExp('([' + possibleShapesString + '][' + _Color.possibleColorsString + ']|-{2}){4}');
 exports.layerRegex = layerRegex;
 class ShortKeyConversionError extends Error {}
 exports.ShortKeyConversionError = ShortKeyConversionError;
@@ -769,7 +712,10 @@ class Shape {
     return this._descriptor;
   }
   constructor(descriptorOrKey) {
-    if (descriptorOrKey instanceof Array) this._descriptor = descriptorOrKey; else this._descriptor = this.fromShortKey(descriptorOrKey);
+    this._descriptor = descriptorOrKey;
+  }
+  toString() {
+    return `Shape(${this.toShortKey()})`;
   }
   [Symbol.iterator] = (function* () {
     yield* this.descriptor[Symbol.iterator]();
@@ -782,26 +728,32 @@ class Shape {
           ...quad
         };
       });
-      if (mapped.length !== 4) throw new Error("Unexpected error in cloneShape: layer does not have 4 quads");
+      if (mapped.length !== 4) throw new Error('Unexpected error in cloneShape: layer does not have 4 quads');
       return mapped;
     }));
   }
-  fromShortKey(key) {
-    const sourceLayers = key.split(":");
-    if (sourceLayers.length > maxLayer) {
-      throw new Error("Only " + maxLayer + " layers allowed");
+  toShortKey() {
+    return this.descriptor.map(l => l.map(q => q === null ? '--' : SubShapeShortCode[q.subShape] + _Color.ColorShortCode[q.color]).join('')).join(':');
+  }
+  static fromShortKey(key) {
+    const sourceLayers = key.split(':');
+    if (!sourceLayers[0]) {
+      throw new ShortKeyConversionError('Expected 1-4 layers, recieved 0');
     }
-    let layers = [];
+    if (sourceLayers.length > maxLayer) {
+      throw new ShortKeyConversionError(`Expected 1-4 layers, recieved ${sourceLayers.length}`);
+    }
+    const layers = [];
     for (let i = 0; i < sourceLayers.length; ++i) {
       const text = sourceLayers[i];
       if (text.length !== 8) {
         throw new ShortKeyConversionError("Invalid layer: '" + text + "' -> must be 8 characters");
       }
-      if (text === ("--").repeat(4)) {
-        throw new ShortKeyConversionError("Empty layers are not allowed");
+      if (text === ('--').repeat(4)) {
+        throw new ShortKeyConversionError('Empty layers are not allowed');
       }
       if (!layerRegex.test(text)) {
-        throw new ShortKeyConversionError("Invalid syntax in layer " + (i + 1));
+        throw new ShortKeyConversionError('Invalid syntax in layer ' + (i + 1));
       }
       const quads = [null, null, null, null];
       for (let quad = 0; quad < 4; ++quad) {
@@ -810,19 +762,19 @@ class Shape {
         const color = _Color.ShortCodeToColor[text[quad * 2 + 1]];
         if (subShape) {
           if (!color) {
-            throw new ShortKeyConversionError("Invalid shape color key: " + key);
+            throw new ShortKeyConversionError('Invalid shape color key: ' + key);
           }
           quads[quad] = {
             subShape,
             color
           };
-        } else if (shapeText !== "-") {
-          throw new ShortKeyConversionError("Invalid shape key: " + shapeText);
+        } else if (shapeText !== '-') {
+          throw new ShortKeyConversionError('Invalid shape key: ' + shapeText);
         }
       }
       layers.push(quads);
     }
-    return layers;
+    return new Shape(layers);
   }
 }
 exports.Shape = Shape;
@@ -833,10 +785,12 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.DoublePaint = exports.QuadPaint = exports.Paint = void 0;
+var _Color = require("../Color");
 var _Shape = require("../Shape");
 var _operation = require("./operation");
-// copied from shapez.io::js/game/shape_definition::586
+// adapted from shapez.io::js/game/shape_definition::586
 function cloneAndPaintWith(shape, color) {
+  if (color === _Color.Color.uncolored) throw new _operation.OperationInvalidIngredientError("A shape cannot be painted uncolored");
   const cloned = shape.clone().descriptor;
   for (let layerIndex = 0; layerIndex < cloned.length; ++layerIndex) {
     const quadrants = cloned[layerIndex];
@@ -849,15 +803,17 @@ function cloneAndPaintWith(shape, color) {
   }
   return new _Shape.Shape(cloned);
 }
-// copied from shapez.io::js/game/shape_definition::601/
+// adapted from shapez.io::js/game/shape_definition::601/
 function cloneAndPaintWith4Colors(shape, colors) {
+  if (colors.some(c => c === _Color.Color.uncolored)) throw new _operation.OperationInvalidIngredientError("A shape cannot be painted uncolored");
   const newLayers = shape.clone().descriptor;
   for (let layerIndex = 0; layerIndex < newLayers.length; ++layerIndex) {
     const quadrants = newLayers[layerIndex];
     for (let quadrantIndex = 0; quadrantIndex < 4; ++quadrantIndex) {
       const item = quadrants[quadrantIndex];
-      if (item) {
-        item.color = colors[quadrantIndex] || item.color;
+      const color = colors[quadrantIndex];
+      if (item && color) {
+        item.color = color;
       }
     }
   }
@@ -874,7 +830,11 @@ const QuadPaint = (0, _operation.createOperation)({
   name: 'QuadPaint',
   ingredients: ['shape', ['color', 'color', 'color', 'color'], ['boolean', 'boolean', 'boolean', 'boolean']],
   result: 'shape',
-  operate: ([shape, colors, bools]) => cloneAndPaintWith4Colors(shape, colors.map((c, i) => bools[i] ? c : null))
+  operate: ([shape, colors, bools]) => {
+    if (!bools.some(b => !!b)) throw new _operation.OperationInvalidIngredientError("At least one wire must be activated");
+    const activatedColors = colors.map((v, i) => bools[i] ? v : null);
+    return cloneAndPaintWith4Colors(shape, activatedColors);
+  }
 });
 exports.QuadPaint = QuadPaint;
 const DoublePaint = (0, _operation.createOperation)({
@@ -885,7 +845,7 @@ const DoublePaint = (0, _operation.createOperation)({
 });
 exports.DoublePaint = DoublePaint;
 
-},{"../Shape":"3eVfh","./operation":"3pbjg"}],"3pbjg":[function(require,module,exports) {
+},{"../Shape":"3eVfh","./operation":"3pbjg","../Color":"4HDMP"}],"3pbjg":[function(require,module,exports) {
 "use strict";
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -927,20 +887,77 @@ function validateIngredientTypes(ingredients, types) {
   ingredients.forEach((ingredient, i) => {
     const ingredientType = types[i];
     if (ingredientType instanceof Array) {
-      if (!(ingredient instanceof Array)) throw new OperationIngredientTypeMismatchError(`Expected array, got '${ingredient}' in ingredient ${i + 1}`);
-      if (ingredient.length !== ingredientType.length) throw new OperationIngredientTypeMismatchError(`Ingredient array length (${ingredients.length}) in ingredient ${i + 1} not equal to expected length (${types.length})`);
+      if (!(ingredient instanceof Array)) throw new OperationIngredientTypeMismatchError(`Expected array, got '${ingredient}' in ingredient ${i}`);
+      if (ingredient.length !== ingredientType.length) throw new OperationIngredientTypeMismatchError(`Ingredient array length (${ingredient.length}) in ingredient ${i} not equal to expected length (${ingredientType.length})`);
       try {
         validateIngredientTypes(ingredient, ingredientType);
       } catch (e) {
         if (e instanceof OperationIngredientTypeMismatchError) {
-          e.message = e.message.replace(/ingredient/g, "index") + ` in index ${i + 1}`;
+          e.message = e.message.replace(/ingredient/g, "index") + ` in ingredient ${i}`;
         }
         throw e;
       }
-    } else if ((0, _util.getGameObjectType)(ingredient) !== ingredientType) throw new OperationIngredientTypeMismatchError(`Expected ${ingredientType}, got '${ingredient}' in ingredient ${i + 1}`);
+    } else if ((0, _util.getGameObjectType)(ingredient) !== ingredientType) throw new OperationIngredientTypeMismatchError(`Expected ${ingredientType}, got '${ingredient}' in ingredient ${i}`);
   });
 }
 
-},{"../util":"2cNuk"}]},["7tYYr","yv9yU"], "yv9yU", "parcelRequire67a6")
+},{"../util":"2cNuk"}],"2cNuk":[function(require,module,exports) {
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.isSubShape = isSubShape;
+exports.isColor = isColor;
+exports.isLayer = isLayer;
+exports.isShape = isShape;
+exports.isShapeKey = isShapeKey;
+exports.isShapeDescriptor = isShapeDescriptor;
+exports.getGameObjectType = getGameObjectType;
+var _Color = require("./Color");
+var _Shape = require("./Shape");
+/*
+* Lots of code here is copied 1:1 from actual game files
+*
+*/
+function isSubShape(subshape) {
+  return typeof subshape === "string" && !!_Shape.SubShape[subshape];
+}
+function isColor(color) {
+  return typeof color === "string" && (color in _Color.Color);
+}
+function isLayer(layer) {
+  if (!(layer instanceof Array && layer.length === 4)) return false;
+  if (layer.every(q => q === null)) return false;
+  return layer.every(quad => {
+    if (quad === null) return true;
+    if (!(quad instanceof Object)) return false;
+    if (!(("subShape" in quad) && ("color" in quad))) return false;
+    return isSubShape(quad.subShape) && isColor(quad.color);
+  });
+}
+function isShape(shape) {
+  return shape instanceof _Shape.Shape;
+}
+function isShapeKey(key) {
+  if (typeof key !== "string") return false;
+  try {
+    _Shape.Shape.fromShortKey(key);
+    return true;
+  } catch (e) {
+    if (e instanceof _Shape.ShortKeyConversionError) return false; else throw e;
+  }
+}
+function isShapeDescriptor(descriptor) {
+  if (!(descriptor instanceof Array && descriptor.length > 0 && descriptor.length <= 4)) return false;
+  return descriptor.every(isLayer);
+}
+function getGameObjectType(gameObject) {
+  if (typeof gameObject === 'boolean') return 'boolean';
+  if (isColor(gameObject)) return 'color';
+  if (isShape(gameObject)) return 'shape';
+  return null;
+}
+
+},{"./Color":"4HDMP","./Shape":"3eVfh"}]},["7tYYr","yv9yU"], "yv9yU", "parcelRequire67a6")
 
 //# sourceMappingURL=index.fa7ffa95.js.map
