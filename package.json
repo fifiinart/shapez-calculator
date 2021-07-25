@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "parcel serve ./src/index.html",
-    "build": "parcel build ./src/index.html",
+    "build": "rm -rf dist && parcel build ./src/index.html --public-url ./",
     "watch": "tsc --watch",
     "test": "jest --silent=false",
     "test:dev": "node --inspect-brk node_modules/.bin/jest --runInBand",
